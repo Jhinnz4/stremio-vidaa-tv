@@ -33,9 +33,9 @@
       "replace": ".sort(((e,t)=>e.distance+.5*Math.abs(e.offset)-(t.distance+.5*Math.abs(t.offset))))"
     },
     {
-      "note": "Spatial nav: skip hidden/detached focusables (zero-size layout reads as the page's top-left corner and steals moves).",
+      "note": "Spatial nav: skip hidden/detached focusables (zero-size layout reads as the page's top-left corner and steals moves). Only for measured items: the navbar area is registered with layoutUpdate:false and keeps a zero layout on purpose.",
       "find": "const o=t.filter((t=>e.id!==t.id))",
-      "replace": "const o=t.filter((t=>e.id!==t.id&&(t.layout.width>0||t.layout.height>0)))"
+      "replace": "const o=t.filter((t=>e.id!==t.id&&(!0!==t.layoutUpdate||t.layout.width>0||t.layout.height>0)))"
     },
     {
       "note": "Spatial nav: layouts were only measured when a focusable was registered, so after animations, dialogs opening or scrolling, cached positions went stale and some buttons became unreachable. Re-measure on every move.",
