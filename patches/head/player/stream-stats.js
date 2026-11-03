@@ -123,6 +123,24 @@
         return audioTracks.length + ' track' + (audioTracks.length === 1 ? '' : 's') + ' — ' + summary;
     }
 
+    // HTMLMediaElement.audioTracks as seen by this browser: "*" marks the
+    // enabled track. Distinguishes "API missing" from "only one track exposed".
+    function browserAudioTracksValue(video) {
+        if (!video) return 'no video';
+        var at = video.audioTracks;
+        if (!at) return 'API not supported';
+        if (!at.length) return '0 tracks';
+        var parts = [];
+        for (var i = 0; i < at.length; i++) {
+            var t = at[i];
+            var p = (t.language || '?') + (t.label ? ' "' + t.label + '"' : '');
+            parts.push(p + (t.enabled ? '*' : ''));
+        }
+        var summary = parts.join(', ');
+        if (summary.length > 58) summary = summary.substring(0, 55) + '…';
+        return at.length + ' track' + (at.length === 1 ? '' : 's') + ' — ' + summary;
+    }
+
     function refreshStreamFacts(video) {
         var src = (video && (video.currentSrc || video.src)) || '';
         if (src === factsForSrc) return;
@@ -224,6 +242,9 @@
         // switchable-picker half is BLOCKED upstream — no server param).
         var audioValue = audioTracksValue();
         if (audioValue) lines.push(pad('Audio') + ': ' + audioValue);
+        // What the TV's own decoder exposes: the player's audio menu
+        // (VidaaVideo/HTMLVideo) is built from this list, server or not.
+        lines.push(pad('Browser aud') + ': ' + browserAudioTracksValue(video));
 
         // Buffer health + how much of the file is ahead of the playhead
         var bufferHealth = video ? getBufferHealth(video) : 0;
