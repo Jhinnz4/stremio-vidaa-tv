@@ -21,6 +21,26 @@
       "note": "App root (Issue #34): destructure ctx.settings with {lazy:!0} so interfaceLanguage is a reactive getter even when ctx.settings starts as {} before the initial debounced core state update fires.",
       "find": "{interfaceLanguage:m}=(0,h.J)(n.settings)",
       "replace": "{interfaceLanguage:m}=(0,h.J)(n.settings,{lazy:!0})"
+    },
+    {
+      "note": "Spatial nav: the edge-distance switch had no breaks, so every direction fell through to the 'right' formula and up/down/left distances were wrong.",
+      "find": "case\"up\":o=m({x:e.layout.center.x,y:e.layout.top},n);case\"down\":o=m({x:e.layout.center.x,y:e.layout.bottom},n);case\"left\":o=m({x:e.layout.left,y:e.layout.center.y},n);case\"right\":o=m({x:e.layout.right,y:e.layout.center.y},n)}",
+      "replace": "case\"up\":o=m({x:e.layout.center.x,y:e.layout.top},n);break;case\"down\":o=m({x:e.layout.center.x,y:e.layout.bottom},n);break;case\"left\":o=m({x:e.layout.left,y:e.layout.center.y},n);break;case\"right\":o=m({x:e.layout.right,y:e.layout.center.y},n)}"
+    },
+    {
+      "note": "Spatial nav: candidates were sorted by distance and then re-sorted by alignment, so alignment alone decided and far-but-aligned items beat near ones (e.g. a dialog's Confirm button could never win). Rank by one combined score instead.",
+      "find": ".sort(((e,t)=>e.distance-t.distance)).sort(((e,t)=>Math.abs(e.offset)-Math.abs(t.offset)))",
+      "replace": ".sort(((e,t)=>e.distance+.5*Math.abs(e.offset)-(t.distance+.5*Math.abs(t.offset))))"
+    },
+    {
+      "note": "Spatial nav: skip hidden/detached focusables (zero-size layout reads as the page's top-left corner and steals moves).",
+      "find": "const o=t.filter((t=>e.id!==t.id))",
+      "replace": "const o=t.filter((t=>e.id!==t.id&&(t.layout.width>0||t.layout.height>0)))"
+    },
+    {
+      "note": "Spatial nav: layouts were only measured when a focusable was registered, so after animations, dialogs opening or scrolling, cached positions went stale and some buttons became unreachable. Re-measure on every move.",
+      "find": "_=async e=>{const t=O();if(!t)return;const n=p().filter",
+      "replace": "_=async e=>{const t=O();if(!t)return;N(p().map((({id:e})=>e))),N(C().map((({id:e})=>e)));const n=p().filter"
     }
   ],
   "fixTrailingNewline": "ensure"

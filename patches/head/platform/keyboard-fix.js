@@ -53,8 +53,11 @@
                     el.dispatchEvent(new Event('change', { bubbles: true }));
                 } catch(e) {}
 
-                // Layer 3: Nuclear option — directly update URL hash
-                if (v.length > 0) {
+                // Layer 3: Nuclear option — directly update URL hash.
+                // Skipped while typing: a hash change re-renders the route,
+                // which blurs the input and closes the VIDAA keyboard. The
+                // search chunk's debounced mirror already updates the query.
+                if (v.length > 0 && document.activeElement !== el) {
                     var encoded = encodeURIComponent(v);
                     if (hash.indexOf('query=' + encoded) === -1) {
                         window.location.hash = '#/search?query=' + encoded;

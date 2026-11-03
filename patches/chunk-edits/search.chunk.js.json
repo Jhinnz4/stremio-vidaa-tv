@@ -3,9 +3,14 @@
   "description": "Surgical edits to the pristine Theater 1.10.0 search.chunk.js. Fork mod ported from the 1.9.2 baseline during the 2026-10 re-baseline (previously baked into upstream/theater-1.9.2/search.chunk.js).",
   "ops": [
     {
-      "note": "Search input mirror: poll the (possibly virtual) keyboard's value changes into the app's query setter P() — the VIDAA keyboard sets input.value without firing the events the app listens to. Cleared on unmount via the same lifecycle the app uses (a.Ki).",
+      "note": "Search input mirror: poll the (possibly virtual) keyboard's value changes into the app's query setter P() — the VIDAA keyboard sets input.value without firing the events the app listens to. Debounced (600ms idle) so results are not reloaded on every keystroke while the keyboard is open. Cleared on unmount via the same lifecycle the app uses (a.Ki).",
       "find": "e&&(v.load(e),v.loadCatalogs(0))})),(0,a.Ki)((()=>{v.unload()}))",
-      "replace": "e&&(v.load(e),v.loadCatalogs(0))})),function(){var _pv=\"\",_pi=setInterval(function(){try{var el=document.querySelector('input[type=\"text\"]')||document.querySelector('input[placeholder]')||document.querySelector('input');if(!el)return;var cv=el.value||\"\";if(cv!==_pv){_pv=cv;if(cv.length>0){P(cv)}else if(_pv===\"\"){P(\"\")}}}catch(e){}},100);(0,a.Ki)((function(){clearInterval(_pi)}))}(),(0,a.Ki)((()=>{v.unload()}))"
+      "replace": "e&&(v.load(e),v.loadCatalogs(0))})),function(){var _pv=\"\",_pc=\"\",_pt=null,_pi=setInterval(function(){try{var el=document.querySelector('input[type=\"text\"]')||document.querySelector('input[placeholder]')||document.querySelector('input');if(!el)return;var cv=el.value||\"\";if(cv!==_pv){_pv=cv;_pt&&clearTimeout(_pt);_pt=setTimeout(function(){_pt=null;if(_pv!==_pc){_pc=_pv;P(_pv)}},600)}}catch(e){}},100);(0,a.Ki)((function(){clearInterval(_pi);_pt&&clearTimeout(_pt)}))}(),(0,a.Ki)((()=>{v.unload()}))"
+    },
+    {
+      "note": "Keyboard stays open: result rows must not grab focus (spatial-nav focus() blurs the input, which closes the VIDAA keyboard) while the search input is being typed into. Arrow-down still reaches the rows.",
+      "find": "get autoFocus(){return p()===n}",
+      "replace": "get autoFocus(){var _ae=document.activeElement;return p()===n&&!(_ae&&_ae.tagName===\"INPUT\")}"
     }
   ],
   "fixTrailingNewline": "ensure"
